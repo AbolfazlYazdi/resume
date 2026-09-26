@@ -41,7 +41,7 @@ function render() {
   const person = {
     "@context":"https://schema.org","@type":"Person","name":resumeData.name.en,"alternateName":resumeData.name.fa,
     "url": resumeData.siteUrl + (isEnglish ? "/en/" : "/"),
-    "image": resumeData.siteUrl + "/assets/images/profile-placeholder.svg",
+    "image": resumeData.siteUrl + "/assets/images/profile.jpg",
     "jobTitle": val(resumeData.title),"description":val(resumeData.about),
     "email":"mailto:"+resumeData.email,"telephone":resumeData.phone,
     "address":{"@type":"PostalAddress","addressRegion":"Golestan","addressCountry":"IR"},
