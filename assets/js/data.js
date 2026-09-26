@@ -3,7 +3,7 @@
   Put your real links in social[].url and replace the profile image when ready.
 */
 const resumeData = {
-  siteUrl: "SITE_URL",
+  siteUrl: "https://abolfazlyazdi.github.io/resume",
   name: { fa: "ابوالفضل یزدی", en: "Abolfazl Yazdi" },
   title: {
     fa: "دانشجوی مهندسی کامپیوتر و علاقه‌مند به فناوری",
