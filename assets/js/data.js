@@ -81,11 +81,11 @@ const resumeData = {
   ],
 
   social: [
-    { name: "GitHub", url: "", enabled: true },
-    { name: "LinkedIn", url: "", enabled: true },
-    { name: "Instagram", url: "", enabled: true },
-    { name: "Telegram", url: "", enabled: true },
-    { name: "X", url: "", enabled: true },
-    { name: "Website", url: "", enabled: true }
+    { name: "GitHub", url: "", enabled: false },
+    { name: "LinkedIn", url: "", enabled: false },
+    { name: "Instagram", url: "", enabled: false },
+    { name: "Telegram", url: "", enabled: false },
+    { name: "X", url: "", enabled: false },
+    { name: "Website", url: "", enabled: false }
   ]
 };
