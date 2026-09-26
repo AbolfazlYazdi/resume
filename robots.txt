@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: SITE_URL/sitemap.xml
+Sitemap: https://abolfazlyazdi.github.io/resume/sitemap.xml
