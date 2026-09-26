@@ -1,0 +1,9 @@
+{
+  "name": "Abolfazl Yazdi — Personal Website",
+  "short_name": "Abolfazl Yazdi",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#080b14",
+  "theme_color": "#080b14",
+  "icons": [{"src":"assets/images/favicon.svg","sizes":"any","type":"image/svg+xml"}]
+}
