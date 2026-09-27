@@ -2,11 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://abolfazlyazdi.github.io/resume/</loc>
+    <loc>
+      https://abolfazlyazdi.github.io/resume/
+    </loc>
   </url>
 
   <url>
-    <loc>https://abolfazlyazdi.github.io/resume/en/</loc>
+    <loc>
+      https://abolfazlyazdi.github.io/resume/en/
+    </loc>
   </url>
 
 </urlset>
