@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://abolfazlyazdi.github.io/resume/</loc>
+    <lastmod>2026-09-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://abolfazlyazdi.github.io/resume/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://abolfazlyazdi.github.io/resume/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://abolfazlyazdi.github.io/resume/"/>
+    <image:image>
+      <image:loc>https://abolfazlyazdi.github.io/resume/assets/images/profile.jpg</image:loc>
+      <image:caption>ابوالفضل یزدی، دانشجوی مهندسی کامپیوتر</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://abolfazlyazdi.github.io/resume/en/</loc>
+    <lastmod>2026-09-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://abolfazlyazdi.github.io/resume/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://abolfazlyazdi.github.io/resume/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://abolfazlyazdi.github.io/resume/"/>
+    <image:image>
+      <image:loc>https://abolfazlyazdi.github.io/resume/assets/images/profile.jpg</image:loc>
+      <image:caption>Abolfazl Yazdi, Computer Engineering student</image:caption>
+    </image:image>
+  </url>
+</urlset>
