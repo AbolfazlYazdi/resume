@@ -4,7 +4,12 @@
   const mobile = innerWidth < 700;
   const s = document.createElement("script");
   s.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-  s.onload = init;
+  s.onload = () => {
+    const g = document.createElement("script");
+    g.src = "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js";
+    g.onload = init; g.onerror = init;
+    document.head.appendChild(g);
+  };
   document.head.appendChild(s);
 
   function init() {
@@ -144,6 +149,23 @@
     const dp = []; for (let i = 0; i < (mobile ? 120 : 320); i++) dp.push((rnd() - 0.5) * 24, (rnd() - 0.5) * 14, -8 + rnd() * 12);
     const dg = new T.BufferGeometry(); dg.setAttribute("position", new T.Float32BufferAttribute(dp, 3));
     const dust = new T.Points(dg, new T.PointsMaterial({ color: 0x8e7cff, size: 0.04, transparent: true, opacity: 0.6 })); scene.add(dust);
+
+    /* ---------- Real models (optional): assets/models/gpu.glb, laptop.glb, pc.glb ---------- */
+    if (T.GLTFLoader) {
+      scene.add(new T.HemisphereLight(0xffffff, 0x223, 0.8));
+      const dir = (document.documentElement.lang === "en" ? "../" : "") + "assets/models/";
+      const loader = new T.GLTFLoader();
+      [["gpu", gpu, 5.2], ["laptop", lap, 3.6], ["pc", tw, 3.2]].forEach(([name, grp, size]) => {
+        loader.load(dir + name + ".glb", gltf => {
+          const m = gltf.scene, box = new T.Box3().setFromObject(m), sz = box.getSize(new T.Vector3());
+          m.scale.setScalar(size / Math.max(sz.x, sz.y, sz.z));
+          box.setFromObject(m); m.position.sub(box.getCenter(new T.Vector3()));
+          const holder = new T.Group(); holder.add(m);
+          while (grp.children.length) grp.remove(grp.children[0]);
+          grp.add(holder);
+        }, undefined, () => {});
+      });
+    }
 
     /* ---------- Layout / interaction ---------- */
     function resize() {
