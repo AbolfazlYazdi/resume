@@ -177,7 +177,7 @@
     const hinge = new T.Group(); hinge.position.set(0, 0.06, -1.1); hinge.rotation.x = -0.25;
     const lid = new T.Mesh(new T.BoxGeometry(3.4, 2.2, 0.08), alu); lid.position.y = 1.1; hinge.add(lid);
     const scr = new T.Mesh(new T.PlaneGeometry(3.15, 2), new T.MeshBasicMaterial({ map: ctex })); scr.position.set(0, 1.1, 0.045); hinge.add(scr);
-    lap.add(hinge); lap.position.set(-4.3, -1.9, 0.6); lap.rotation.y = 0.55; lap.scale.setScalar(0.62); rig.add(lap);
+    lap.add(hinge); lap.position.set(-4.3, -1.9, 0.6); lap.rotation.y = -0.55; lap.scale.setScalar(0.62); rig.add(lap);
 
     /* ----- PC tower ----- */
     const tw = new T.Group();
