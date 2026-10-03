@@ -104,3 +104,22 @@ body.light .project-body a{color:var(--accent)}
 @media(max-width:850px){.nav{visibility:hidden;transition:max-height .25s ease,visibility 0s .25s}.nav.open{visibility:visible;transition-delay:0s}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 ul.skills-grid{list-style:none;margin:0;padding:0}
+
+#fxToggle,
+#fxToggle.on,
+#fxToggle:hover,
+#fxToggle:focus,
+#fxToggle[aria-pressed="true"] {
+  border: 0 !important;
+  outline: 0;
+  box-shadow: none;
+  background-origin: border-box;
+  background-clip: border-box;
+  background-repeat: no-repeat;
+}
+
+/* برای دسترسی‌پذیری: حلقهٔ فوکوس فقط با کیبورد */
+#fxToggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
