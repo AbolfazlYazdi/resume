@@ -238,13 +238,27 @@
       ring.rotation.y = -t * 0.18;
       arcs.forEach((a, i) => { a.t = (a.t + a.v) % 1; const q = a.cu.getPoint(a.t); pg.attributes.position.setXYZ(i, q.x, q.y, q.z); });
       pg.attributes.position.needsUpdate = true;
-      gpu.position.set(1.6 * Math.sin(t * 0.35), 0.25 + 0.3 * Math.sin(t * 0.5 + 1), 1 + 0.6 * Math.sin(t * 0.27));
+      gpu.position.set(1.6 * Math.sin(t * 0.35), 0.45 + 0.3 * Math.sin(t * 0.5 + 1), 1 + 0.6 * Math.sin(t * 0.27));
       gpu.rotation.set(0.1 + Math.sin(t * 0.5) * 0.08, Math.sin(t * 0.4) * 0.6 + gpu.position.x * 0.1, Math.sin(t * 0.3) * 0.08);
-      const la = t * 0.22, ta = t * 0.17 + Math.PI;
-      lap.position.set(4.8 * Math.cos(la), -2.2 + 0.4 * Math.sin(t * 0.6), -0.5 + 2.5 * Math.sin(la));
+      const la = t * 0.22, ta = la + Math.PI;
+      lap.position.set(4.8 * Math.cos(la), -2.6 + 0.4 * Math.sin(t * 0.6), -0.5 + 2.5 * Math.sin(la));
       lap.rotation.y = -lap.position.x * 0.12 + Math.sin(t * 0.5) * 0.3;
-      tw.position.set(5.2 * Math.cos(ta), -1.7 + 0.4 * Math.sin(t * 0.5 + 2), -0.5 + 2.5 * Math.sin(ta));
+      tw.position.set(5.2 * Math.cos(ta), -2.1 + 0.4 * Math.sin(t * 0.5 + 2), -0.5 + 2.5 * Math.sin(ta));
       tw.rotation.y = -tw.position.x * 0.12 - 0.4 + Math.sin(t * 0.4) * 0.3;
+      /* collision avoidance: push objects apart along an ellipsoid around each one */
+      const sep = (a, ay, b, by, sx, sy, sz, wa, wb) => {
+        const dx = b.position.x - a.position.x, dy = (b.position.y + by) - (a.position.y + ay), dz = b.position.z - a.position.z;
+        const s = Math.hypot(dx / sx, dy / sy, dz / sz) || 0.001;
+        if (s >= 1) return;
+        const k = 1 / s - 1;
+        a.position.x -= dx * k * wa; a.position.y -= dy * k * wa; a.position.z -= dz * k * wa;
+        b.position.x += dx * k * wb; b.position.y += dy * k * wb; b.position.z += dz * k * wb;
+      };
+      for (let i = 0; i < 3; i++) {
+        sep(gpu, 0, lap, 0.65, 3.6, 2.2, 1.9, 0, 1);
+        sep(gpu, 0, tw, 0, 3.1, 2.3, 1.7, 0, 1);
+        sep(lap, 0.65, tw, 0, 2.1, 1.9, 1.7, 0.5, 0.5);
+      }
       
       fans.forEach(f => (f.rotation.z -= 0.13)); rings.forEach(r => (r.rotation.z += 0.05));
       rgb.material.color.setHSL((t * 0.1) % 1, 0.9, 0.6);
