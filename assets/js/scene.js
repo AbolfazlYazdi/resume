@@ -1,10 +1,9 @@
 /* scene.js v3
-   1) keeps scroll position when switching fa/en
-   2) shows a toggle button; the 3D scene (Three.js) loads only after it is pressed
-   3) optional real models: assets/models/gpu.glb, laptop.glb, pc.glb */
+   1) shows a toggle button; the 3D scene (Three.js) loads only after it is pressed
+   2) optional real models: assets/models/gpu.glb, laptop.glb, pc.glb */
 (() => {
   const en = document.documentElement.lang === "en";
-  const KEY = "ay_scroll", FX = "ay_fx";
+  const FX = "ay_fx";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const mobile = innerWidth < 700;
   const ss = {
@@ -13,25 +12,6 @@
     del: k => { try { sessionStorage.removeItem(k); } catch (e) {} }
   };
 
-  /* ---------- 1) Keep scroll position across language switch ---------- */
-  try { history.scrollRestoration = "manual"; } catch (e) {}
-  const ids = ["home", "about", "experience", "education", "projects", "skills", "languages", "contact"];
-  const topOf = el => el.getBoundingClientRect().top + scrollY;
-  const snap = () => {
-    let cur = document.getElementById("home");
-    ids.forEach(id => { const el = document.getElementById(id); if (el && topOf(el) <= scrollY + 80) cur = el; });
-    return { id: cur.id, f: Math.max(0, (scrollY - topOf(cur)) / cur.offsetHeight) };
-  };
-  const saved = ss.get(KEY); ss.del(KEY);
-  const restore = () => {
-    if (!saved) return;
-    let d; try { d = JSON.parse(saved); } catch (e) { return; }
-    const el = document.getElementById(d.id);
-    if (el) scrollTo({ top: topOf(el) + d.f * el.offsetHeight, behavior: "instant" });
-  };
-  restore(); addEventListener("load", restore);
-  document.querySelectorAll(".lang-btn").forEach(a => a.addEventListener("click", () => ss.set(KEY, JSON.stringify(snap()))));
-
   /* ---------- 2) Toggle button ---------- */
   const st = document.createElement("style");
   st.textContent = "#scene3d{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}" +
@@ -39,7 +19,8 @@
     "#fxToggle{position:fixed;bottom:20px;inset-inline-start:20px;z-index:50;padding:11px 16px;border-radius:14px;border:1px solid var(--line,rgba(255,255,255,.18));background:var(--surface,rgba(17,23,40,.85));color:var(--text,#fff);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.3);transition:.2s}" +
     "#fxToggle:hover{transform:translateY(-2px);border-color:var(--accent,#7c5cff)}" +
     "#fxToggle.on{background:linear-gradient(135deg,#7c5cff,#25d0c7);color:#fff;border-color:transparent}" +
-    "@media print{#fxToggle,#scene3d{display:none!important}}";
+    "@media print{#fxToggle,#scene3d{display:none!important}}" +
+    ".grid-bg{display:none!important}";
   document.head.appendChild(st);
   const btn = document.createElement("button");
   btn.id = "fxToggle"; btn.type = "button";
@@ -98,14 +79,16 @@
     /* ----- Globe network (internet) ----- */
     const globe = new T.Group(); globe.position.set(0, 0, -1.5); rig.add(globe);
     const R = 3.8;
-    globe.add(new T.Mesh(new T.IcosahedronGeometry(R, 3), new T.MeshBasicMaterial({ color: 0x7c5cff, wireframe: true, transparent: true, opacity: 0.07 })));
+    const wireM = new T.MeshBasicMaterial({ color: 0x7c5cff, wireframe: true, transparent: true, opacity: 0.07 });
+    globe.add(new T.Mesh(new T.IcosahedronGeometry(R, 3), wireM));
     const NN = mobile ? 70 : 130, nodes = [], np = [];
     for (let i = 0; i < NN; i++) {
       const y = 1 - (2 * (i + 0.5)) / NN, r = Math.sqrt(1 - y * y), th = i * 2.399963;
       const v = new T.Vector3(Math.cos(th) * r, y, Math.sin(th) * r).multiplyScalar(R); nodes.push(v); np.push(v.x, v.y, v.z);
     }
     const ng = new T.BufferGeometry(); ng.setAttribute("position", new T.Float32BufferAttribute(np, 3));
-    globe.add(new T.Points(ng, new T.PointsMaterial({ color: 0x25d0c7, size: 0.06, transparent: true, opacity: 0.85 })));
+    const nodeM = new T.PointsMaterial({ color: 0x25d0c7, size: 0.06, transparent: true, opacity: 0.85 });
+    globe.add(new T.Points(ng, nodeM));
     const arcs = [], AC = mobile ? 8 : 15;
     for (let i = 0; i < AC; i++) {
       const a = nodes[Math.floor(rnd() * NN)], b = nodes[Math.floor(rnd() * NN)];
@@ -115,7 +98,8 @@
       arcs.push({ cu, t: rnd(), v: 0.003 + rnd() * 0.004 });
     }
     const pg = new T.BufferGeometry(); pg.setAttribute("position", new T.Float32BufferAttribute(new Float32Array(AC * 3), 3));
-    globe.add(new T.Points(pg, new T.PointsMaterial({ color: 0xffffff, size: 0.16, transparent: true })));
+    const pktM = new T.PointsMaterial({ color: 0xffffff, size: 0.16, transparent: true });
+    globe.add(new T.Points(pg, pktM));
 
     /* ----- Code ring orbiting the GPU ----- */
     const code = ["#include <iostream>", "int main() {", "std::vector<int> v{1,2,3};", "for (auto x : v) std::cout << x;", "return 0; }",
@@ -123,10 +107,17 @@
       "ping -c 4 google.com", "nvidia-smi", "while True: render()", "git commit -m 'ship it'", "npm run build"];
     const row = code.join("   ·   ");
     const rc = document.createElement("canvas"); rc.width = 2048; rc.height = 170;
-    const rx = rc.getContext("2d"); rx.font = "26px monospace";
-    for (let r = 0; r < 4; r++) { rx.fillStyle = r % 2 ? "rgba(165,148,255,.95)" : "rgba(37,208,199,.95)"; rx.fillText(row.slice(r * 40, r * 40 + 130), 0, 34 + r * 42); }
+    const rx = rc.getContext("2d"), ringTex = new T.CanvasTexture(rc);
+    const drawRing = light => {
+      rx.clearRect(0, 0, 2048, 170); rx.font = "26px monospace";
+      for (let r = 0; r < 4; r++) {
+        rx.fillStyle = light ? (r % 2 ? "rgb(76,48,214)" : "rgb(6,112,106)") : (r % 2 ? "rgba(165,148,255,.95)" : "rgba(37,208,199,.95)");
+        rx.fillText(row.slice(r * 40, r * 40 + 130), 0, 34 + r * 42);
+      }
+    };
+    drawRing(false);
     const ringTilt = new T.Group(); ringTilt.position.set(0, 0.2, 0.4); ringTilt.rotation.set(0.38, 0, -0.1); rig.add(ringTilt);
-    const ring = new T.Mesh(new T.CylinderGeometry(3.3, 3.3, 0.9, 96, 1, true), new T.MeshBasicMaterial({ map: new T.CanvasTexture(rc), transparent: true, opacity: 0.8, side: T.DoubleSide, depthWrite: false }));
+    const ring = new T.Mesh(new T.CylinderGeometry(3.3, 3.3, 0.9, 96, 1, true), new T.MeshBasicMaterial({ map: ringTex, transparent: true, opacity: 0.8, side: T.DoubleSide, depthWrite: false }));
     ringTilt.add(ring);
 
     /* ----- GPU (hero object) ----- */
@@ -177,7 +168,7 @@
     const hinge = new T.Group(); hinge.position.set(0, 0.06, -1.1); hinge.rotation.x = -0.25;
     const lid = new T.Mesh(new T.BoxGeometry(3.4, 2.2, 0.08), alu); lid.position.y = 1.1; hinge.add(lid);
     const scr = new T.Mesh(new T.PlaneGeometry(3.15, 2), new T.MeshBasicMaterial({ map: ctex })); scr.position.set(0, 1.1, 0.045); hinge.add(scr);
-    lap.add(hinge); lap.position.set(-4.3, -1.9, 0.6); lap.rotation.y = Math.PI + 0.55; lap.scale.setScalar(0.62); rig.add(lap);
+    lap.add(hinge); lap.position.set(-4.3, -1.9, 0.6); lap.rotation.y = 0.55; lap.scale.setScalar(0.62); rig.add(lap);
 
     /* ----- PC tower ----- */
     const tw = new T.Group();
@@ -204,7 +195,8 @@
     /* ----- Dust ----- */
     const dp = []; for (let i = 0; i < (mobile ? 70 : 150); i++) dp.push((rnd() - 0.5) * 22, (rnd() - 0.5) * 12, -7 + rnd() * 10);
     const dg = new T.BufferGeometry(); dg.setAttribute("position", new T.Float32BufferAttribute(dp, 3));
-    scene.add(new T.Points(dg, new T.PointsMaterial({ color: 0x8e7cff, size: 0.035, transparent: true, opacity: 0.5 })));
+    const dustM = new T.PointsMaterial({ color: 0x8e7cff, size: 0.035, transparent: true, opacity: 0.5 });
+    scene.add(new T.Points(dg, dustM));
 
     /* ----- Layout / interaction ----- */
     function resize() {
@@ -217,10 +209,26 @@
     let mx = 0, my = 0, running = false, raf = 0;
     addEventListener("pointermove", e => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; });
 
+    let curLight = null;
+    function applyTheme(light) {
+      curLight = light;
+      wireM.color.setHex(light ? 0x4a35d6 : 0x7c5cff); wireM.opacity = light ? 0.18 : 0.07;
+      nodeM.color.setHex(light ? 0x0b7f79 : 0x25d0c7); nodeM.size = light ? 0.085 : 0.06; nodeM.opacity = light ? 1 : 0.85;
+      pktM.color.setHex(light ? 0x151a3a : 0xffffff);
+      dustM.color.setHex(light ? 0x4a35d6 : 0x8e7cff); dustM.opacity = light ? 0.7 : 0.5;
+      globe.children.filter(o => o.isLine).forEach((o, i) => {
+        o.material.color.setHex(i % 2 ? (light ? 0x0b7f79 : 0x25d0c7) : (light ? 0x4a35d6 : 0x7c5cff));
+        o.material.opacity = light ? 0.7 : 0.35;
+      });
+      glow.material.blending = light ? T.NormalBlending : T.AdditiveBlending;
+      glow.material.color.setHex(light ? 0xa99cff : 0x6a5cff); glow.material.opacity = light ? 0.3 : 0.28; glow.material.needsUpdate = true;
+      drawRing(light); ringTex.needsUpdate = true;
+    }
     function frame(now) {
       if (!running) return;
       const t = now / 1000, p = Math.min(scrollY / innerHeight, 1.5);
-      canvas.style.opacity = String(Math.max(0.15, 0.75 - p * 0.6));
+      const light = document.body.classList.contains("light"); if (light !== curLight) applyTheme(light);
+      canvas.style.opacity = String(Math.max(0.15, (light ? 0.85 : 0.75) - p * 0.6));
       camera.position.x += (mx * 1.0 - camera.position.x) * 0.04;
       camera.position.y += (-my * 0.6 - camera.position.y) * 0.04;
       camera.lookAt(0, 0, 0);
@@ -230,8 +238,14 @@
       ring.rotation.y = -t * 0.18;
       arcs.forEach((a, i) => { a.t = (a.t + a.v) % 1; const q = a.cu.getPoint(a.t); pg.attributes.position.setXYZ(i, q.x, q.y, q.z); });
       pg.attributes.position.needsUpdate = true;
-      gpu.rotation.y = Math.sin(t * 0.4) * 0.5; gpu.rotation.x = 0.1 + Math.sin(t * 0.5) * 0.05; gpu.position.y = 0.25 + Math.sin(t) * 0.1;
-      lap.position.y = -1.9 + Math.sin(t * 0.8 + 1) * 0.08; tw.position.y = -1.4 + Math.sin(t * 0.7 + 2) * 0.08;
+      gpu.position.set(1.6 * Math.sin(t * 0.35), 0.25 + 0.3 * Math.sin(t * 0.5 + 1), 1 + 0.6 * Math.sin(t * 0.27));
+      gpu.rotation.set(0.1 + Math.sin(t * 0.5) * 0.08, Math.sin(t * 0.4) * 0.6 + gpu.position.x * 0.1, Math.sin(t * 0.3) * 0.08);
+      const la = t * 0.22, ta = t * 0.17 + Math.PI;
+      lap.position.set(4.8 * Math.cos(la), -2.2 + 0.4 * Math.sin(t * 0.6), -0.5 + 2.5 * Math.sin(la));
+      lap.rotation.y = -lap.position.x * 0.12 + Math.sin(t * 0.5) * 0.3;
+      tw.position.set(5.2 * Math.cos(ta), -1.7 + 0.4 * Math.sin(t * 0.5 + 2), -0.5 + 2.5 * Math.sin(ta));
+      tw.rotation.y = -tw.position.x * 0.12 - 0.4 + Math.sin(t * 0.4) * 0.3;
+      
       fans.forEach(f => (f.rotation.z -= 0.13)); rings.forEach(r => (r.rotation.z += 0.05));
       rgb.material.color.setHSL((t * 0.1) % 1, 0.9, 0.6);
       drawCode(now);
@@ -240,7 +254,7 @@
     }
     return {
       start() {
-        running = true; canvas.style.display = "block"; resize();
+        running = true; canvas.style.display = "block"; resize(); applyTheme(document.body.classList.contains("light"));
         if (reduce) { canvas.style.opacity = "0.7"; renderer.render(scene, camera); } else raf = requestAnimationFrame(frame);
       },
       stop() { running = false; cancelAnimationFrame(raf); canvas.style.display = "none"; }
